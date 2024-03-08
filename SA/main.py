@@ -134,21 +134,24 @@ def GetNonFixedNumbers(square_numbers, initial_sudoku):
 
 def ChangePlace( non_fixed_numbers, sudoku ):
     new_sudoku = [row[:] for row in sudoku]
-    
     random_index_1 = random.randint( 0, len( non_fixed_numbers ) - 1)
-
     random_number_1 = non_fixed_numbers[ random_index_1 ][ 0 ]
+    random_number_1_row     = non_fixed_numbers[ random_index_1 ][ 1 ]
+    random_number_1_column  = non_fixed_numbers[ random_index_1 ][ 2 ]
     non_fixed_numbers.pop( random_index_1 )
-    
     random_index_2 = random.randint( 0, len( non_fixed_numbers ) - 1)
     random_number_2 = non_fixed_numbers[ random_index_2 ][ 0 ]
-
-    print( non_fixed_numbers )
     print( f"Random index 1: {random_index_1} and Random index 2: {random_index_2}")
     print( f"Random number 1: {random_number_1} and Random number 2: {random_number_2}" )
 
-    new_sudoku[non_fixed_numbers[random_index_1][1]][non_fixed_numbers[random_index_1][2]] = random_number_2
-    new_sudoku[non_fixed_numbers[random_index_2][1]][non_fixed_numbers[random_index_2][2]] = random_number_1
+
+    
+    random_number_2_row     = non_fixed_numbers[ random_index_2 ][ 1 ]
+    random_number_2_column  = non_fixed_numbers[ random_index_2 ][ 2 ]
+
+    new_sudoku[ random_number_1_row ][ random_number_1_column ] = random_number_2
+    new_sudoku[ random_number_2_row ][ random_number_2_column ] = random_number_1
+
     return new_sudoku
 
 if __name__ == "__main__":
