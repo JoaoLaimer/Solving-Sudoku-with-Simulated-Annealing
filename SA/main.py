@@ -105,14 +105,13 @@ def SelectSquare(sudoku):
     random_square_row = random.choice([3, 6, 9])
     random_square_column = random.choice([3, 6, 9])
     square_numbers = []
-    #"""
-    print("Selected Square: ")
+    
+    #print("Selected Square: ")
     for row in range(random_square_row - 3, random_square_row):
         for column in range(random_square_column - 3, random_square_column):
-            print(sudoku[row][column], end =" ")
             square_numbers.append((sudoku[row][column], row, column))
-        print()
-    #"""
+
+    
     return square_numbers
 
 def GetNonFixedNumbers(square_numbers, initial_sudoku):
@@ -125,58 +124,75 @@ def GetNonFixedNumbers(square_numbers, initial_sudoku):
     for numbers in square_numbers:
         if numbers[0] not in fixed_numbers:
             not_fixed_numbers.append(numbers)
-    #""" 
+    """ 
     print("Square Numbers: ", square_numbers)
     print("Fixed Numbers: ", fixed_numbers)
     print("Not fixed numbers: ", not_fixed_numbers)
-    #"""
+    """
     return not_fixed_numbers
 
 def ChangePlace( non_fixed_numbers, sudoku ):
+    if len(non_fixed_numbers) < 2:
+        return sudoku
     new_sudoku = [row[:] for row in sudoku]
+    
     random_index_1 = random.randint( 0, len( non_fixed_numbers ) - 1)
     random_number_1 = non_fixed_numbers[ random_index_1 ][ 0 ]
     random_number_1_row     = non_fixed_numbers[ random_index_1 ][ 1 ]
     random_number_1_column  = non_fixed_numbers[ random_index_1 ][ 2 ]
+
     non_fixed_numbers.pop( random_index_1 )
+
     random_index_2 = random.randint( 0, len( non_fixed_numbers ) - 1)
     random_number_2 = non_fixed_numbers[ random_index_2 ][ 0 ]
-    print( f"Random index 1: {random_index_1} and Random index 2: {random_index_2}")
-    print( f"Random number 1: {random_number_1} and Random number 2: {random_number_2}" )
-
-
-    
     random_number_2_row     = non_fixed_numbers[ random_index_2 ][ 1 ]
     random_number_2_column  = non_fixed_numbers[ random_index_2 ][ 2 ]
+    """
+    print( f"Random index 1: {random_index_1} and Random index 2: {random_index_2}")
+    print( f"Random number 1: {random_number_1} and Random number 2: {random_number_2}" )
+    """
 
     new_sudoku[ random_number_1_row ][ random_number_1_column ] = random_number_2
     new_sudoku[ random_number_2_row ][ random_number_2_column ] = random_number_1
 
     return new_sudoku
 
+def ChooseState(new_sudoku, new_cost, old_sudoku, old_cost, TEMPERATURE):
+    if new_cost < old_cost:
+        return new_sudoku, new_cost
+    else:
+        return old_sudoku, old_cost
+    #probability = 1 / (1 + (2.71828 ** ((new_cost - old_cost) / TEMPERATURE)))
+        
+
 if __name__ == "__main__":
     
     SIZE = 9
+    TEMPERATURE = 100
+    COLLING_RATE = 0.99
+    INTERACTIONS_PER_TEMPERATURE = 200
+    SOLUTION_FOUND = 0
     initial_sudoku = GetSudoku()
-    """
-    DISPLAY = DM(SIZE, initial_sudoku)
+
+    random_state_sudoku     = RandomSolution(initial_sudoku)
+    row_cost                = RowCostFunction(random_state_sudoku)
+    column_cost             = ColumnCostFunction(random_state_sudoku)
+    random_state_total_cost = row_cost + column_cost
+
+    current_sudoku = random_state_sudoku
+    current_cost   = random_state_total_cost
+
+    while current_cost > 0:
+        for i in range(INTERACTIONS_PER_TEMPERATURE):
+            square_numbers      = SelectSquare(random_state_sudoku)
+            non_fixed_numbers   = GetNonFixedNumbers(square_numbers, initial_sudoku)
+            new_sudoku_state    = ChangePlace(non_fixed_numbers, current_sudoku)
+            new_row_cost        = RowCostFunction(new_sudoku_state)
+            new_column_cost     = ColumnCostFunction(new_sudoku_state)
+            new_total_cost      = new_row_cost + new_column_cost
+            current_sudoku, current_cost = ChooseState(new_sudoku_state, new_total_cost, current_sudoku, current_cost, TEMPERATURE)
+        TEMPERATURE *= COLLING_RATE
+
+    DISPLAY = DM(SIZE, current_sudoku)
     DISPLAY.DisplayGrid()
-    """
-
-    random_state_sudoku = RandomSolution(initial_sudoku)
-    DISPLAY             = DM(SIZE, random_state_sudoku)
-    DISPLAY.DisplayGridWithColor(initial_sudoku, random_state_sudoku)
-    row_cost            = RowCostFunction(random_state_sudoku)
-    column_cost         = ColumnCostFunction(random_state_sudoku)
-    total_cost          = row_cost + column_cost
-    print("Cost Function: ", total_cost)
     
-
-    square_numbers      = SelectSquare(random_state_sudoku)
-    non_fixed_numbers   = GetNonFixedNumbers(square_numbers, initial_sudoku)
-    new_sudoku_state    = ChangePlace(non_fixed_numbers, random_state_sudoku)
-    DISPLAY.DisplayGridWithColor(initial_sudoku, new_sudoku_state)
-    new_row_cost        = RowCostFunction(new_sudoku_state)
-    new_column_cost     = ColumnCostFunction(new_sudoku_state)
-    new_total_cost      = new_row_cost + new_column_cost
-    print("New Row Cost: ", new_total_cost)
