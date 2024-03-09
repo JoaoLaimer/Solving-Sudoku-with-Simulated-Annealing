@@ -16,9 +16,9 @@ from save.save_sudoku       import SaveSudoku       as SAVE
 import random
 import time
 
-SIZE = 9
-
-
+SIZE        = 16
+SIZE_SQUARE = int(SIZE ** 0.5)
+SQUARE_SIZE = int(SIZE / SIZE_SQUARE)
 """
 SIMULATED ANNEALING
 PASSOS:
@@ -47,7 +47,7 @@ Next it evaluates a number of candidate new solutions by tweaking one of the fre
 The algorithm then selects one of the candidate solutions at random for the next step, weighted by the change in the score.
 """
 def SelectRandomSudoku():
-    file = open("sudoku_incomplete.txt", "r")
+    file = open("sudokus\\sudoku_incomplete.txt", "r")
     count = 0
     for line in file:
         if line.startswith("Sudoku"):
@@ -58,39 +58,39 @@ def SelectRandomSudoku():
 
 def GetSudoku():
     sudoku_id = SelectRandomSudoku()
-    file = open("sudoku_incomplete.txt", "r")
+    file = open("sudokus\\sudoku_incomplete.txt", "r")
     sudoku = []
     for line in file:
         if line.startswith("Sudoku " + str(sudoku_id)):
-            for i in range(9):
+            for i in range(SIZE):
                 row = file.readline()
                 row = row.split() 
                 row = [int(num) for num in row]  
                 sudoku.append(row)
             break
     file.close()
-    return sudoku
+    return sudoku, sudoku_id
 
 def RandomSolution(sudoku):
     sudoku_grid = [row[:] for row in sudoku]  
-    for row in range(9):
-        for column in range(9):
+    for row in range(SIZE):
+        for column in range(SIZE):
             if sudoku_grid[row][column] == 0:
-                checker = CKM(9, sudoku_grid)
-                number = random.randint(1, 9)
+                checker = CKM(SIZE, sudoku_grid)
+                number = random.randint(1, SIZE)
                 while not checker.Check_Square(number, column, row, sudoku_grid):
-                    number = random.randint(1, 9)
+                    number = random.randint(1, SIZE)
                 sudoku_grid[row][column] = number
     return sudoku_grid
 
 def RowCostFunction(sudoku):
     conflicts = 0
     checked_numbers = set()
-    for row in range(9):
+    for row in range(SIZE):
         checked_numbers.clear()
-        for column in range(9):
+        for column in range(SIZE):
             number = sudoku[row][column]
-            for i in range (column, 9):
+            for i in range (column, SIZE):
                 if i != column and sudoku[row][i] == number and number not in checked_numbers:
                     conflicts += 1
                     checked_numbers.add(number)
@@ -99,11 +99,11 @@ def RowCostFunction(sudoku):
 def ColumnCostFunction(sudoku):
     conflicts = 0
     checked_numbers = set()
-    for column in range(9):
+    for column in range(SIZE):
         checked_numbers.clear()
-        for row in range(9):
+        for row in range(SIZE):
             number = sudoku[row][column]
-            for i in range (row, 9):
+            for i in range (row, SIZE):
                 if i != row and sudoku[i][column] == number and number not in checked_numbers: 
                     #print(f"Number {number} in row {row} and column {column} is repeated in row {i}")
                     conflicts += 1
@@ -118,11 +118,13 @@ def CalculateTotalCost(sudoku):
 def SelectSquare(sudoku):
     random_square_row = random.choice([3, 6, 9])
     random_square_column = random.choice([3, 6, 9])
+    random_square_row_index     = random.randint(0, SQUARE_SIZE - 1)
+    random_square_column_index  = random.randint(0, SQUARE_SIZE - 1)
     square_numbers = []
     
     #print("Selected Square: ")
-    for row in range(random_square_row - 3, random_square_row):
-        for column in range(random_square_column - 3, random_square_column):
+    for row in range(random_square_row_index * SQUARE_SIZE, (random_square_row_index + 1) * SQUARE_SIZE):
+        for column in range(random_square_column_index * SQUARE_SIZE, (random_square_column_index + 1) * SQUARE_SIZE):
             #print(sudoku[row][column], end=" ")
             square_numbers.append((sudoku[row][column], row, column))
         #print()
@@ -146,28 +148,19 @@ def GetNonFixedNumbers(square_numbers, initial_sudoku):
     return not_fixed_numbers
 
 def SwapTwoCells( non_fixed_numbers, sudoku ):
+    if non_fixed_numbers == []:
+        return sudoku
     if len(non_fixed_numbers) < 2:
         return sudoku
-    new_sudoku = [row[:] for row in sudoku]
-    
-    random_index_1 = random.randint( 0, len( non_fixed_numbers ) - 1)
-    random_number_1 = non_fixed_numbers[ random_index_1 ][ 0 ]
-    random_number_1_row     = non_fixed_numbers[ random_index_1 ][ 1 ]
-    random_number_1_column  = non_fixed_numbers[ random_index_1 ][ 2 ]
+    new_sudoku = numpy.copy(sudoku)
 
-    non_fixed_numbers.pop( random_index_1 )
-
-    random_index_2 = random.randint( 0, len( non_fixed_numbers ) - 1)
-    random_number_2 = non_fixed_numbers[ random_index_2 ][ 0 ]
-    random_number_2_row     = non_fixed_numbers[ random_index_2 ][ 1 ]
-    random_number_2_column  = non_fixed_numbers[ random_index_2 ][ 2 ]
-    """
-    print( f"Random index 1: {random_index_1} and Random index 2: {random_index_2}")
-    print( f"Random number 1: {random_number_1} and Random number 2: {random_number_2}" )
-    """
-
-    new_sudoku[ random_number_1_row ][ random_number_1_column ] = random_number_2
-    new_sudoku[ random_number_2_row ][ random_number_2_column ] = random_number_1
+    cell_1 = random.choice(non_fixed_numbers)
+    cell_2 = random.choice(non_fixed_numbers)
+    while cell_1 == cell_2:
+        cell_2 = random.choice(non_fixed_numbers)
+    temp_cell = new_sudoku[cell_1[1]][cell_1[2]]
+    new_sudoku[cell_1[1]][cell_1[2]] = new_sudoku[cell_2[1]][cell_2[2]]
+    new_sudoku[cell_2[1]][cell_2[2]] = temp_cell
 
     return new_sudoku
 
@@ -202,17 +195,18 @@ def CalculateInitialTemperature(initial_sudoku, num_neighborhood_moves):
 
 def ChooseNumberOfItterations(initial_sudoku):
     numberOfItterations = 0
-    for i in range (0,9):
-        for j in range (0,9):
+    for i in range (0,SIZE):
+        for j in range (0,SIZE):
             if initial_sudoku[i][0] != 0:
                 numberOfItterations += 1
     #print(f"Number of itterations: {numberOfItterations}")
     return numberOfItterations
         
 def SimulatedAnnealing():
-    initial_sudoku  = GetSudoku()
+    initial_sudoku, initial_sudoku_id  = GetSudoku()
+    print(f"Initial Sudoku ID: {initial_sudoku_id}")
 
-    INITIAL_TEMPERATURE     = CalculateInitialTemperature(initial_sudoku, num_neighborhood_moves=10)
+    INITIAL_TEMPERATURE     = CalculateInitialTemperature(initial_sudoku, num_neighborhood_moves=20)
     TEMPERATURE = INITIAL_TEMPERATURE
     ITTERATIONS_PER_TEMPERATURE = ChooseNumberOfItterations(initial_sudoku)
     COLLING_RATE    = 0.99
@@ -225,32 +219,33 @@ def SimulatedAnnealing():
 
     current_sudoku = random_state_sudoku
     current_cost   = random_state_total_cost
-
-    D = DM(SIZE, random_state_sudoku)
-    D.DisplayGridWithColor(initial_sudoku, random_state_sudoku)
-    
+    #"""
+    DISPLAY = DM(SIZE, random_state_sudoku)
+    DISPLAY.DisplayGridWithColor(initial_sudoku, random_state_sudoku)
+    #"""
+    STEP = 1
     while SOLUTION_FOUND == 0:
-        
+            
         for i in range(ITTERATIONS_PER_TEMPERATURE):
-            print(f"Current temperature: {TEMPERATURE} and Current cost: {current_cost}")
+            #print(f"Step: {STEP} | Temperature: {TEMPERATURE} | Current Cost: {current_cost}| Stuck Counter: {STUCK_COUNTER}")
             previous_cost       = current_cost
-            square_numbers      = SelectSquare(random_state_sudoku)
-            non_fixed_numbers   = GetNonFixedNumbers(square_numbers, initial_sudoku)
-            new_sudoku_state    = SwapTwoCells(non_fixed_numbers, current_sudoku)
-            new_total_cost      = CalculateTotalCost(new_sudoku_state)
-            current_sudoku, current_cost = ChooseState(new_sudoku_state, new_total_cost, current_sudoku, current_cost, TEMPERATURE)
+            square_numbers      = SelectSquare          (random_state_sudoku)
+            non_fixed_numbers   = GetNonFixedNumbers    (square_numbers, initial_sudoku)
+            new_sudoku_state    = SwapTwoCells          (non_fixed_numbers, current_sudoku)
+            new_total_cost      = CalculateTotalCost    (new_sudoku_state)
+            current_sudoku, current_cost = ChooseState  (new_sudoku_state, new_total_cost, current_sudoku, current_cost, TEMPERATURE)
             TEMPERATURE *= COLLING_RATE
             if current_cost <= 0:
                 SOLUTION_FOUND = 1
                 break
-            """
             if current_cost >= previous_cost:
                 STUCK_COUNTER += 1
             else:
                 STUCK_COUNTER = 0
-            if (STUCK_COUNTER > 80):
+            if (STUCK_COUNTER > 100):
                 TEMPERATURE = INITIAL_TEMPERATURE
-            """
+            STEP += 1
+            
     return current_sudoku
 
 if __name__ == "__main__":
@@ -259,9 +254,10 @@ if __name__ == "__main__":
     end_time = time.time()
     time_taken = end_time - start_time
     print(f"Time taken: {time_taken}")
-    print(solved_sudoku)
     DISPLAY = DM(SIZE, solved_sudoku)
     DISPLAY.DisplayGrid()
+    checker = CKM(SIZE, solved_sudoku)
+    print(checker.Is_Valid_Solution())
 
 
 """
@@ -277,4 +273,33 @@ Sudoku 0:
   0  4  0  0  9  3  0  0  0
   3  1  0  0  0  4  7  5  0
   
-  """
+  def SwapTwoCells( non_fixed_numbers, initial_sudoku, sudoku ):
+    if non_fixed_numbers == []:
+        return sudoku
+    #D = DM(SIZE, sudoku)
+    #D.DisplayGridWithColor(initial_sudoku, sudoku)
+    if len(non_fixed_numbers) < 2:
+        return sudoku
+    new_sudoku = [row[:] for row in sudoku]
+    
+    random_index_1 = random.randint( 0, len( non_fixed_numbers ) - 1)
+    random_number_1 = non_fixed_numbers[ random_index_1 ][ 0 ]
+    random_number_1_row     = non_fixed_numbers[ random_index_1 ][ 1 ]
+    random_number_1_column  = non_fixed_numbers[ random_index_1 ][ 2 ]
+
+    non_fixed_numbers.pop( random_index_1 )
+
+    random_index_2 = random.randint( 0, len( non_fixed_numbers ) - 1)
+    random_number_2 = non_fixed_numbers[ random_index_2 ][ 0 ]
+    random_number_2_row     = non_fixed_numbers[ random_index_2 ][ 1 ]
+    random_number_2_column  = non_fixed_numbers[ random_index_2 ][ 2 ]
+  
+    print( f"Random index 1: {random_index_1} and Random index 2: {random_index_2}")
+    print( f"Random number 1: {random_number_1} and Random number 2: {random_number_2}" )
+    
+
+    new_sudoku[ random_number_1_row ][ random_number_1_column ] = random_number_2
+    new_sudoku[ random_number_2_row ][ random_number_2_column ] = random_number_1
+
+    return new_sudoku
+"""
