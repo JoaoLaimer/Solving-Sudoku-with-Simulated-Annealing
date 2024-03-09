@@ -7,7 +7,7 @@ class SaveSudoku:
 
     def Count_Saved_Sudokus(self):
         count = 0
-        file = open("sudoku_complete.txt", "r+")
+        file = open("sudokus\\sudoku_complete.txt", "r+")
         for line in file:
             if line.startswith("Sudoku"):
                 count += 1
