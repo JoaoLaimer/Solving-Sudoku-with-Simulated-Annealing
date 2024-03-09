@@ -1,5 +1,7 @@
 import sys
 import os
+import numpy
+import math
 ### ADICIONA O CAMINHO DO DIRETÓRIO (MODULE,PAI) AO PATH PRA CONSEGUIR IMPORTAR FUNCOES###
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
@@ -16,25 +18,28 @@ import time
 """
 SIMULATED ANNEALING
 PASSOS:
-1 - Generate a random solution
-2 - Calculate the cost of the solution
-3 - Generate a new solution
-4 - Calculate the cost of the new solution
-5 - Compare the cost of the new solution with the cost of the old solution
+1 - Generate a random solution                                              XXXXXXXXXXXXXXXXXXXXXX
+2 - Calculate the cost of the solution                                      XXXXXXXXXXXXXXXXXXXXXX
+3 - Generate a new solution                                                 XXXXXXXXXXXXXXXXXXXXXX
+4 - Calculate the cost of the new solution                                  XXXXXXXXXXXXXXXXXXXXXX
+5 - Compare the cost of the new solution with the cost of the old solution  XXXXXXXXXXXXXXXXXXXXXX
 
 Cost function:
 1 - Number of conflicts in the solution
-2 - Number of empty cells in the solution
 3 - Number of repeated numbers in the solution
 
-6 - If the new solution is better than the old solution, accept the new solution
-8 - Select a starting temperature
-9 - Calculate iterations per temperature
-10 - Select a cooling rate
+6 - If the new solution is better than the old solution, accept the new solution XXXXXXXXXXXXXXXXXXXXXX
+8 - Select a starting temperature                                                FALTA ESSE PASSO
+9 - Calculate iterations per temperature                                         FALTA ESSE PASSO
+10 - Select a cooling rate                                                       XXXXXXXXXXXXXXXXXXXXXX
 
 Probability of accepting the new solution: 1/1+e^(new_cost - old_cost)/T
 """
 
+"""
+PRECISO CRIAR UM CODIGO QUE VERIFICA SE O ALGORITMO ESTA PRESO EM UM MINIMO LOCAL
+SE NECESSARIO FAZER UMA FUNCAO DE "REHEAT"
+"""
 def SelectRandomSudoku():
     file = open("sudoku_incomplete.txt", "r")
     count = 0
@@ -161,17 +166,37 @@ def ChooseState(new_sudoku, new_cost, old_sudoku, old_cost, TEMPERATURE):
     if new_cost < old_cost:
         return new_sudoku, new_cost
     else:
-        return old_sudoku, old_cost
-    #probability = 1 / (1 + (2.71828 ** ((new_cost - old_cost) / TEMPERATURE)))
+        probability = 1 / (1 + (2.71828 ** (new_cost - old_cost) / TEMPERATURE))
+        if random.random() < probability:
+            return new_sudoku, new_cost
+        else:
+            return old_sudoku, old_cost
+
+def CalculateInitialTemperature(initial_sudoku, num_neighborhood_moves):
+    neighborhood_costs = []
+    temp_sudoku = [row[:] for row in initial_sudoku]
+    for i in range(num_neighborhood_moves):
+        square_numbers      = SelectSquare(temp_sudoku)
+        non_fixed_numbers   = GetNonFixedNumbers(square_numbers, initial_sudoku)
+        new_sudoku_state    = ChangePlace(non_fixed_numbers, temp_sudoku)
+        new_row_cost        = RowCostFunction(new_sudoku_state)
+        new_column_cost     = ColumnCostFunction(new_sudoku_state)
+        new_total_cost      = new_row_cost + new_column_cost
+        neighborhood_costs.append(new_total_cost)
+
+    standard_deviation = numpy.std(neighborhood_costs)
+    
+    return standard_deviation
         
 
 if __name__ == "__main__":
     
     SIZE = 9
-    TEMPERATURE = 100
+    TEMPERATURE =  1.03
     COLLING_RATE = 0.99
-    INTERACTIONS_PER_TEMPERATURE = 200
+    INTERACTIONS_PER_TEMPERATURE = 33
     SOLUTION_FOUND = 0
+    STUCK_COUNTER = 0
     initial_sudoku = GetSudoku()
 
     random_state_sudoku     = RandomSolution(initial_sudoku)
@@ -182,7 +207,12 @@ if __name__ == "__main__":
     current_sudoku = random_state_sudoku
     current_cost   = random_state_total_cost
 
-    while current_cost > 0:
+
+    #TEMPERATURE = CalculateInitialTemperature(random_state_sudoku, random_state_total_cost, num_neighborhood_moves=200)
+    print("Temperatura inicial calculada:", TEMPERATURE)
+    
+    while SOLUTION_FOUND == 0:
+        print(f"Current cost: {current_cost}")
         for i in range(INTERACTIONS_PER_TEMPERATURE):
             square_numbers      = SelectSquare(random_state_sudoku)
             non_fixed_numbers   = GetNonFixedNumbers(square_numbers, initial_sudoku)
@@ -191,8 +221,10 @@ if __name__ == "__main__":
             new_column_cost     = ColumnCostFunction(new_sudoku_state)
             new_total_cost      = new_row_cost + new_column_cost
             current_sudoku, current_cost = ChooseState(new_sudoku_state, new_total_cost, current_sudoku, current_cost, TEMPERATURE)
+            if current_cost <= 0:
+                SOLUTION_FOUND = 1
+                break
         TEMPERATURE *= COLLING_RATE
-
+    
     DISPLAY = DM(SIZE, current_sudoku)
     DISPLAY.DisplayGrid()
-    
