@@ -16,7 +16,7 @@ class SaveSudoku:
 
     def Save_Sudoku(self , time, hidden_numbers):
         saved_sudoku_numbers = self.Count_Saved_Sudokus()
-        file = open("sudoku_complete.txt", "a") 
+        file = open("sudokus\\sudoku_complete.txt", "a") 
         file.write(f"Sudoku {saved_sudoku_numbers}:\n")
         for row in range(self.SIZE):
             for column in range(self.SIZE):
@@ -28,7 +28,7 @@ class SaveSudoku:
 
     def Save_Sudoku_With_Hidden_Numbers(self, hidden_numbers):
         saved_sudoku_numbers = self.Count_Saved_Sudokus() - 1
-        file = open("sudoku_incomplete.txt", "a") 
+        file = open("sudokus\\sudoku_incomplete.txt", "a") 
         file.write(f"Sudoku {saved_sudoku_numbers}:\n")
         while hidden_numbers > 0:
             row = random.randint(0, self.SIZE - 1)

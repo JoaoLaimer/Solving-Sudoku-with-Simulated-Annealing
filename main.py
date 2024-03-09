@@ -7,7 +7,7 @@ import random
 SIZE = 9
 
 def Random_sudoku():
-    file = open("sudoku_incomplete.txt", "r")
+    file = open("sudokus\\sudoku_incomplete.txt", "r")
     count = 0
     for line in file:
         if line.startswith("Sudoku"):
@@ -18,7 +18,7 @@ def Random_sudoku():
 
 def Get_Sudoku():
     sudoku_id = Random_sudoku()
-    file = open("sudoku_incomplete.txt", "r")
+    file = open("sudokus\\sudoku_incomplete.txt", "r")
     sudoku = []
     for line in file:
         if line.startswith("Sudoku " + str(sudoku_id)):
