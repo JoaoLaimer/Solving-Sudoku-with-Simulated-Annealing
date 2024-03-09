@@ -17,9 +17,10 @@ from save.save_sudoku       import SaveSudoku       as SAVE
 import random
 import time
 
-SIZE        = 9
+SIZE        = 16
 SIZE_SQUARE = int(SIZE ** 0.5)
 SQUARE_SIZE = int(SIZE / SIZE_SQUARE)
+PERCENTAGEOFNUMBERS  = 85
 """
 SIMULATED ANNEALING
 PASSOS:
@@ -205,7 +206,7 @@ def ChooseNumberOfItterations(initial_sudoku):
     return numberOfItterations
         
 def SimulatedAnnealing():
-    initial_sudoku = SudokuGenerator.Sudoku(SIZE)
+    initial_sudoku = SudokuGenerator.Sudoku(SIZE, PERCENTAGEOFNUMBERS)
     
     INITIAL_TEMPERATURE     = CalculateInitialTemperature(initial_sudoku.grid, num_neighborhood_moves=20)
     TEMPERATURE = INITIAL_TEMPERATURE

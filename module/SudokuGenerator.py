@@ -3,7 +3,8 @@ import time
 
 class Sudoku:
 
-    def __init__ (self, SIZE):
+    def __init__ (self, SIZE, PERCENTAGE = 50):
+        self.PERCENTAGE = PERCENTAGE
         self.SIZE = SIZE
         self.grid = [ [ 0 for x in range( SIZE ) ] for y in range( SIZE ) ]
         self.numbers_list = list( range( 1, SIZE + 1 ) )
@@ -82,8 +83,8 @@ class Sudoku:
             
         for i in range(0, self.SIZE):
             for j in range(0, self.SIZE):
-                number_dice_roll = random.randint(1, 6)
-                if number_dice_roll <= 3:
+                number_dice_roll = random.randint(1, 100)
+                if number_dice_roll >= self.PERCENTAGE:
                     self.grid[i][j] = 0
         
         return True
@@ -129,6 +130,6 @@ class Sudoku:
 
 
 if __name__ == "__main__":
-    sudoku = Sudoku(25)
+    sudoku = Sudoku(9,85)
 
                         
