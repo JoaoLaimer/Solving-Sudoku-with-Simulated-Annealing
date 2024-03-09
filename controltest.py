@@ -12,11 +12,12 @@ sys.path.append(parent_dir)
 from module.create_matrix   import CreateMatrix     as CM
 from module.display_matrix  import DisplayMatrix    as DM
 from module.check_matrix    import CheckMatrix      as CKM
+import module.SudokuGenerator as SudokuGenerator
 from save.save_sudoku       import SaveSudoku       as SAVE
 import random
 import time
 
-SIZE        = 16
+SIZE        = 9
 SIZE_SQUARE = int(SIZE ** 0.5)
 SQUARE_SIZE = int(SIZE / SIZE_SQUARE)
 """
@@ -46,6 +47,7 @@ Then it "scores" this solution by counting the number of digits duplicated in al
 Next it evaluates a number of candidate new solutions by tweaking one of the free digits, and scores those. 
 The algorithm then selects one of the candidate solutions at random for the next step, weighted by the change in the score.
 """
+"""
 def SelectRandomSudoku():
     file = open("sudokus\\sudoku_incomplete.txt", "r")
     count = 0
@@ -70,7 +72,7 @@ def GetSudoku():
             break
     file.close()
     return sudoku, sudoku_id
-
+"""
 def RandomSolution(sudoku):
     sudoku_grid = [row[:] for row in sudoku]  
     for row in range(SIZE):
@@ -197,23 +199,22 @@ def ChooseNumberOfItterations(initial_sudoku):
     numberOfItterations = 0
     for i in range (0,SIZE):
         for j in range (0,SIZE):
-            if initial_sudoku[i][0] != 0:
+            if initial_sudoku.grid[i][0] != 0:
                 numberOfItterations += 1
     #print(f"Number of itterations: {numberOfItterations}")
     return numberOfItterations
         
 def SimulatedAnnealing():
-    initial_sudoku, initial_sudoku_id  = GetSudoku()
-    print(f"Initial Sudoku ID: {initial_sudoku_id}")
-
-    INITIAL_TEMPERATURE     = CalculateInitialTemperature(initial_sudoku, num_neighborhood_moves=20)
+    initial_sudoku = SudokuGenerator.Sudoku(SIZE)
+    
+    INITIAL_TEMPERATURE     = CalculateInitialTemperature(initial_sudoku.grid, num_neighborhood_moves=20)
     TEMPERATURE = INITIAL_TEMPERATURE
     ITTERATIONS_PER_TEMPERATURE = ChooseNumberOfItterations(initial_sudoku)
     COLLING_RATE    = 0.99
     SOLUTION_FOUND  = 0
     STUCK_COUNTER   = 0
 
-    random_state_sudoku         = RandomSolution(initial_sudoku)
+    random_state_sudoku         = RandomSolution(initial_sudoku.grid)
     
     random_state_total_cost     = CalculateTotalCost(random_state_sudoku)
 
@@ -221,7 +222,7 @@ def SimulatedAnnealing():
     current_cost   = random_state_total_cost
     #"""
     DISPLAY = DM(SIZE, random_state_sudoku)
-    DISPLAY.DisplayGridWithColor(initial_sudoku, random_state_sudoku)
+    DISPLAY.DisplayGridWithColor(initial_sudoku.grid, random_state_sudoku)
     #"""
     STEP = 1
     while SOLUTION_FOUND == 0:
@@ -230,7 +231,7 @@ def SimulatedAnnealing():
             #print(f"Step: {STEP} | Temperature: {TEMPERATURE} | Current Cost: {current_cost}| Stuck Counter: {STUCK_COUNTER}")
             previous_cost       = current_cost
             square_numbers      = SelectSquare          (random_state_sudoku)
-            non_fixed_numbers   = GetNonFixedNumbers    (square_numbers, initial_sudoku)
+            non_fixed_numbers   = GetNonFixedNumbers    (square_numbers, initial_sudoku.grid)
             new_sudoku_state    = SwapTwoCells          (non_fixed_numbers, current_sudoku)
             new_total_cost      = CalculateTotalCost    (new_sudoku_state)
             current_sudoku, current_cost = ChooseState  (new_sudoku_state, new_total_cost, current_sudoku, current_cost, TEMPERATURE)
