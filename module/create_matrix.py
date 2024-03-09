@@ -53,6 +53,3 @@ class CreateMatrix:
             return grid
         else:
             return self.Solve(grid)
-    
-    
-

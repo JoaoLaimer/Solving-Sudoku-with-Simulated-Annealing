@@ -38,8 +38,8 @@ def Generate_Sudoku():
     M.Fill_Grid()
     end_time = time.time() 
     time_taken = end_time - start_time
-    S = SAVE(SIZE, M.grid)
-    S.Save_Sudoku(time_taken, 15)
+   # S = SAVE(SIZE, M.grid)
+   # S.Save_Sudoku(time_taken, 15)
     D = DM(SIZE, M.grid)
     D.DisplayGrid()
     print("\n")
