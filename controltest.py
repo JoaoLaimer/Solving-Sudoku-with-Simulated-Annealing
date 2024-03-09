@@ -260,8 +260,6 @@ if __name__ == "__main__":
     time_taken = end_time - start_time
     print(f"Time taken: {time_taken}")
     print(solved_sudoku)
-    S = SAVE(SIZE, solved_sudoku)
-    S.Save_Sudoku(time_taken, 15)
     DISPLAY = DM(SIZE, solved_sudoku)
     DISPLAY.DisplayGrid()
 
