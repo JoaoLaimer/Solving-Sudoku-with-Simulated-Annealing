@@ -49,7 +49,8 @@ class CreateMatrix:
     def Solve( self, grid ):
         checker = CKM( self.SIZE, grid )
         self.Backtracking( grid, checker )
-        if checker.IsValidSolution():
-            return grid
-        else:
-            return self.Solve( grid )
+        return grid
+        #if checker.IsValidSolution():
+            #return grid
+        #else:
+            #return self.Solve( grid )

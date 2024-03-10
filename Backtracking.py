@@ -4,6 +4,8 @@ from module.CheckMatrix import CheckMatrix as CKM
 from save.SaveSudoku import SaveSudoku as SAVE
 import time
 import random
+import sys
+sys.setrecursionlimit(1500)
 SIZE = 25
 
 def Randomsudoku():
@@ -21,7 +23,7 @@ def GetSudoku():
     file      = open( f"sudokus\\sudoku_incomplete_{str(SIZE)}.txt", "r" )
     sudoku    = []
     for line in file:
-        if line.startswith( "Sudoku " + str( sudoku_id ) ):
+        if line.startswith( "Sudoku: " + str( sudoku_id ) ):
             for i in range( SIZE ):
                 row = file.readline()
                 row = row.split() 
@@ -45,14 +47,21 @@ def GenerateSudoku():
     print( "\n" )
 
 def SolveSudoku():
+    
     sudoku = GetSudoku()
     D = DM( SIZE, sudoku )
     D.DisplayGrid()
     print( "\n" )
     M = CM( SIZE )
+    start_time = time.time()
     solved = M.Solve( sudoku )
+    end_time = time.time()
+    time_taken = end_time - start_time
+    print( f"Time taken to solve the sudoku: {time_taken:.5f} seconds" )
     D = DM( SIZE, solved )
     D.DisplayGrid()
+    checker = CKM( SIZE, solved )
+    print( f"Is the solution valid? {checker.IsValidSolution()}" )
 
 
 if __name__ == "__main__":
