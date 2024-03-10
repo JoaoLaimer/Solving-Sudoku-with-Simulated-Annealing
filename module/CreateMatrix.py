@@ -38,9 +38,9 @@ class CreateMatrix:
                     for number in self.numbers:
                         if checker.CheckGrid( number, column, row, grid ):
                             grid[ row ][ column ] = number
-                            if checker.IsGridFull(): 
-                                return True
                             if self.Backtracking( grid, checker ):
+                                return True
+                            if checker.IsGridFull(): 
                                 return True
                             grid[ row ][ column ] = 0
                     return False
