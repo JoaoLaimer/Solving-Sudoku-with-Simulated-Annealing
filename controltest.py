@@ -17,10 +17,10 @@ from save.save_sudoku       import SaveSudoku       as SAVE
 import random
 import time
 
-SIZE        = 16
+SIZE        = 9
 SIZE_SQUARE = int(SIZE ** 0.5)
 SQUARE_SIZE = int(SIZE / SIZE_SQUARE)
-PERCENTAGEOFNUMBERS  = 85
+PERCENTAGEOFNUMBERS  = 70
 """
 SIMULATED ANNEALING
 PASSOS:
@@ -118,7 +118,7 @@ def CalculateTotalCost(sudoku):
     column_cost = ColumnCostFunction(sudoku)
     return row_cost + column_cost
 
-def SelectSquare(sudoku):
+def SelectRandomSquare(sudoku):
     random_square_row = random.choice([3, 6, 9])
     random_square_column = random.choice([3, 6, 9])
     random_square_row_index     = random.randint(0, SQUARE_SIZE - 1)
@@ -134,6 +134,7 @@ def SelectSquare(sudoku):
     return square_numbers
 
 def GetNonFixedNumbers(square_numbers, initial_sudoku):
+    """   
     fixed_numbers = []
     for i in range(len(square_numbers)):
         if initial_sudoku[square_numbers[i][1]][square_numbers[i][2]] != 0:
@@ -142,6 +143,11 @@ def GetNonFixedNumbers(square_numbers, initial_sudoku):
     not_fixed_numbers = []
     for numbers in square_numbers:
         if numbers[0] not in fixed_numbers:
+            not_fixed_numbers.append(numbers)
+    """
+    not_fixed_numbers = []
+    for numbers in square_numbers:
+        if initial_sudoku[numbers[1]][numbers[2]] == 0:
             not_fixed_numbers.append(numbers)
     """
     print("Square Numbers: ", square_numbers)
@@ -179,13 +185,13 @@ def ChooseState(new_sudoku, new_cost, old_sudoku, old_cost, TEMPERATURE):
         else:
             return old_sudoku, old_cost
 
-def CalculateInitialTemperature(initial_sudoku, num_neighborhood_moves):
+def CalculateInitialTemperature(sudoku_grid, num_neighborhood_moves):
     neighborhood_costs = []
-    temp_sudoku = [row[:] for row in initial_sudoku]
+    temp_sudoku = [row[:] for row in sudoku_grid]
     for i in range(num_neighborhood_moves):
         random_state_sudoku = RandomSolution(temp_sudoku)
-        square_numbers      = SelectSquare(temp_sudoku)
-        non_fixed_numbers   = GetNonFixedNumbers(square_numbers, initial_sudoku)
+        square_numbers      = SelectRandomSquare(temp_sudoku)
+        non_fixed_numbers   = GetNonFixedNumbers(square_numbers, sudoku_grid)
         new_sudoku_state    = SwapTwoCells(non_fixed_numbers, random_state_sudoku)
         new_total_cost      = CalculateTotalCost(new_sudoku_state)
         neighborhood_costs.append(new_total_cost)
@@ -196,11 +202,11 @@ def CalculateInitialTemperature(initial_sudoku, num_neighborhood_moves):
 
     return standard_deviation
 
-def ChooseNumberOfItterations(initial_sudoku):
+def ChooseNumberOfItterations(sudoku_grid):
     numberOfItterations = 0
     for i in range (0,SIZE):
         for j in range (0,SIZE):
-            if initial_sudoku.grid[i][0] != 0:
+            if sudoku_grid[i][0] != 0:
                 numberOfItterations += 1
     #print(f"Number of itterations: {numberOfItterations}")
     return numberOfItterations
@@ -210,7 +216,7 @@ def SimulatedAnnealing():
     
     INITIAL_TEMPERATURE     = CalculateInitialTemperature(initial_sudoku.grid, num_neighborhood_moves=20)
     TEMPERATURE = INITIAL_TEMPERATURE
-    ITTERATIONS_PER_TEMPERATURE = ChooseNumberOfItterations(initial_sudoku)
+    ITTERATIONS_PER_TEMPERATURE = ChooseNumberOfItterations(initial_sudoku.grid)
     COLLING_RATE    = 0.99
     SOLUTION_FOUND  = 0
     STUCK_COUNTER   = 0
@@ -229,9 +235,9 @@ def SimulatedAnnealing():
     while SOLUTION_FOUND == 0:
             
         for i in range(ITTERATIONS_PER_TEMPERATURE):
-            #print(f"Step: {STEP} | Temperature: {TEMPERATURE} | Current Cost: {current_cost}| Stuck Counter: {STUCK_COUNTER}")
+            print(f"Step: {STEP} | Temperature: {TEMPERATURE} | Current Cost: {current_cost}| Stuck Counter: {STUCK_COUNTER}")
             previous_cost       = current_cost
-            square_numbers      = SelectSquare          (random_state_sudoku)
+            square_numbers      = SelectRandomSquare          (random_state_sudoku)
             non_fixed_numbers   = GetNonFixedNumbers    (square_numbers, initial_sudoku.grid)
             new_sudoku_state    = SwapTwoCells          (non_fixed_numbers, current_sudoku)
             new_total_cost      = CalculateTotalCost    (new_sudoku_state)
@@ -246,6 +252,7 @@ def SimulatedAnnealing():
                 STUCK_COUNTER = 0
             if (STUCK_COUNTER > 100):
                 TEMPERATURE = INITIAL_TEMPERATURE
+                STUCK_COUNTER = 0
             STEP += 1
             
     return current_sudoku
