@@ -132,26 +132,10 @@ def SelectRandomSquare( sudoku ):
     return square_numbers
 
 def GetNonFixedNumbers(square_numbers, initial_sudoku):
-    """   
-    fixed_numbers = []
-    for i in range( len( square_numbers ) ):
-        if initial_sudoku[square_numbers[i][1]][square_numbers[i][2]] != 0:
-            fixed_numbers.append( square_numbers[i][0] )
-    
-    not_fixed_numbers = []
-    for numbers in square_numbers:
-        if numbers[0] not in fixed_numbers:
-            not_fixed_numbers.append( numbers )
-    """
     not_fixed_numbers = []
     for numbers in square_numbers:
         if initial_sudoku[numbers[1]][numbers[2]] == 0:
             not_fixed_numbers.append(numbers)
-    """
-    print("Square Numbers: ", square_numbers)
-    print("Fixed Numbers: ", fixed_numbers)
-    print("Not fixed numbers: ", not_fixed_numbers)
-    """
     return not_fixed_numbers
 
 def SwapTwoCells( non_fixed_numbers, sudoku ):
@@ -181,15 +165,15 @@ def ChooseState( new_sudoku, new_cost, old_sudoku, old_cost, TEMPERATURE ):
         else:
             return old_sudoku, old_cost
 
-def CalculateInitialTemperature(sudoku_grid, num_neighborhood_moves):
+def CalculateInitialTemperature( sudoku_grid, num_neighborhood_moves ):
     neighborhood_costs = []
     temp_sudoku = [row[:] for row in sudoku_grid]
     for i in range(num_neighborhood_moves):
-        random_state_sudoku = RandomSolution(temp_sudoku)
-        square_numbers      = SelectRandomSquare(temp_sudoku)
-        non_fixed_numbers   = GetNonFixedNumbers(square_numbers, sudoku_grid)
-        new_sudoku_state    = SwapTwoCells(non_fixed_numbers, random_state_sudoku)
-        new_total_cost      = CalculateTotalCost(new_sudoku_state)
+        random_state_sudoku = RandomSolution( temp_sudoku )
+        square_numbers      = SelectRandomSquare( temp_sudoku )
+        non_fixed_numbers   = GetNonFixedNumbers( square_numbers, sudoku_grid )
+        new_sudoku_state    = SwapTwoCells( non_fixed_numbers, random_state_sudoku )
+        new_total_cost      = CalculateTotalCost( new_sudoku_state )
         neighborhood_costs.append(new_total_cost)
 
     standard_deviation = ( statistics.pstdev( neighborhood_costs ) )
@@ -198,7 +182,7 @@ def CalculateInitialTemperature(sudoku_grid, num_neighborhood_moves):
 
     return standard_deviation
 
-def ChooseNumberOfItterations(sudoku_grid):
+def ChooseNumberOfItterations( sudoku_grid ):
     numberOfItterations = 0
     for i in range (0,SIZE):
         for j in range (0,SIZE):
