@@ -1,5 +1,19 @@
 import random
 import time
+import os
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
+
+"""
+from module.CreateMatrix   import CreateMatrix     as CM
+from module.DisplayMatrix  import DisplayMatrix    as DM
+from module.CheckMatrix    import CheckMatrix      as CKM
+"""
+from save.SaveSudoku       import SaveSudoku       as SAVE
 
 class Sudoku:
 
@@ -9,6 +23,7 @@ class Sudoku:
         self.grid = [ [ 0 for x in range( SIZE ) ] for y in range( SIZE ) ]
         self.numbers_list = list( range( 1, SIZE + 1 ) )
         self.box_size = int( SIZE ** 0.5 )
+
         start_time = time.time() 
         self.InitializeGrid()
         while( not self.FillGrid() ):
@@ -18,6 +33,7 @@ class Sudoku:
 
         end_time = time.time() 
         time_taken = end_time - start_time
+
         print( f"Time taken to generate the sudoku: {time_taken:.5f} seconds" )
   
     def InitializeGrid( self ):
@@ -43,7 +59,6 @@ class Sudoku:
                     return False
     
         return True
-
 
     def FillGrid( self ):
         for row in range( self.SIZE ):
@@ -87,10 +102,8 @@ class Sudoku:
         
         return True
               
-                           
-    
     def DisplayGrid( self ):
-        #"""
+        """
         print( "\n" )
         print( "     ", end=""	)
         for i in range(  self.SIZE ) :
@@ -99,35 +112,46 @@ class Sudoku:
             else:
                 print( f"{i}  ", end="" )
         print( "\n", end="" )
-        #"""
+        """
 
-        #"""
+        """
         for j in range( 3 *  self.SIZE + 5 ) :
             print( "-", end="" )
         print( "\n", end="" )
-        #"""
+        """
         for row in range(  self.SIZE ) :
-            #"""
+            """
             if row == 3 or row == 6:
                 for j in range( 3 * self.SIZE  + 5 ) :
                     print( "-", end="" )
                 print( "\n", end="" )
             print( f"{row} |", end="" )
-            #"""
+            """
             for column in range( self.SIZE  ):
-                if column == 2 or column == 5:
-                    print( f"{ str( self.grid[ row ][ column ] ).rjust( 3 ) }|", end="" )
-                else:
-                    print( f"{ str( self.grid[ row ][ column ] ).rjust( 3 ) }", end="" )
+                print( f"{ str( self.grid[ row ][ column ] ).rjust( 3 ) }|", end="" )
             print( "\n", end="" )
-        #"""
+        """
         for j in range( 3 *  self.SIZE + 5 ) :
             print( "-", end="" )
         print( "\n", end="" )
-        #"""
-
+        """
+def SolveSudoku():
+    pass
 
 if __name__ == "__main__":
-    sudoku = Sudoku(9,85)
+    PERCENTAGE = 85
+    while True:
+        print( "1. Generate a new Sudoku\n2. Exit" )
+        option = int( input( "Enter your choice: " ) )
+        if option == 1:
+            SIZE = int( input( "Enter the size N of the sudoku (NxN): " ) )
+            sudoku = Sudoku( SIZE, 85 )
+            S = SAVE( SIZE, sudoku.grid )
+            S.SaveSudokuIncomplete( 85 )
+        elif option == 2:
+            print( "Exiting..." )
+            break
+        else:
+            print( "Invalid option. Please choose again." )
 
                         

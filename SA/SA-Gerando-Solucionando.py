@@ -9,15 +9,15 @@ sys.path.append(current_dir)
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-from module.create_matrix   import CreateMatrix     as CM
-from module.display_matrix  import DisplayMatrix    as DM
-from module.check_matrix    import CheckMatrix      as CKM
+from module.CreateMatrix   import CreateMatrix     as CM
+from module.DisplayMatrix  import DisplayMatrix    as DM
+from module.CheckMatrix    import CheckMatrix      as CKM
 import module.SudokuGenerator as SudokuGenerator
-from save.save_sudoku       import SaveSudoku       as SAVE
+from save.SaveSudoku       import SaveSudoku       as SAVE
 import random
 import time
 
-SIZE        = 9
+SIZE        = 25
 SIZE_SQUARE = int(SIZE ** 0.5)
 SQUARE_SIZE = int(SIZE / SIZE_SQUARE)
 PERCENTAGEOFNUMBERS  = 85
@@ -202,7 +202,10 @@ def ChooseNumberOfItterations( initial_sudoku ):
     return numberOfItterations
         
 def SimulatedAnnealing():
+
     initial_sudoku = SudokuGenerator.Sudoku( SIZE, PERCENTAGEOFNUMBERS )
+    S = SAVE( SIZE, initial_sudoku.grid )
+    S.SaveSudokuIncomplete( PERCENTAGEOFNUMBERS )
     
     INITIAL_TEMPERATURE     = CalculateInitialTemperature( initial_sudoku.grid, num_neighborhood_moves=20 )
     TEMPERATURE = INITIAL_TEMPERATURE
@@ -216,6 +219,7 @@ def SimulatedAnnealing():
 
     current_sudoku = random_state_sudoku
     current_cost   = random_state_total_cost
+    print(current_cost)
     #"""
     DISPLAY = DM( SIZE, random_state_sudoku )
     DISPLAY.DisplayGridWithColor( initial_sudoku.grid, random_state_sudoku )
@@ -253,7 +257,8 @@ if __name__ == "__main__":
     end_time      = time.time()
     time_taken    = end_time - start_time
     print( f"Time taken: {time_taken}" )
-
+    S = SAVE( SIZE, solved_sudoku )
+    S.SaveSudokuComplete( PERCENTAGEOFNUMBERS )
     DISPLAY = DM(SIZE, solved_sudoku)
     DISPLAY.DisplayGrid()
     #checker = CKM(SIZE, solved_sudoku)

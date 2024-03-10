@@ -1,13 +1,13 @@
-from module.create_matrix import CreateMatrix as CM
-from module.display_matrix import DisplayMatrix as DM
-from module.check_matrix import CheckMatrix as CKM
-from save.save_sudoku import SaveSudoku as SAVE
+from module.CreateMatrix import CreateMatrix as CM
+from module.DisplayMatrix import DisplayMatrix as DM
+from module.CheckMatrix import CheckMatrix as CKM
+from save.SaveSudoku import SaveSudoku as SAVE
 import time
 import random
-SIZE = 9
+SIZE = 25
 
 def Randomsudoku():
-    file  = open( "sudokus\\sudoku_incomplete.txt", "r" )
+    file  = open(f"sudokus\\sudoku_incomplete_{str(SIZE)}.txt", "r" )
     count = 0
     for line in file:
         if line.startswith( "Sudoku" ):
@@ -18,7 +18,7 @@ def Randomsudoku():
 
 def GetSudoku():
     sudoku_id = Randomsudoku()
-    file      = open( "sudokus\\sudoku_incomplete.txt", "r" )
+    file      = open( f"sudokus\\sudoku_incomplete_{str(SIZE)}.txt", "r" )
     sudoku    = []
     for line in file:
         if line.startswith( "Sudoku " + str( sudoku_id ) ):
@@ -39,7 +39,7 @@ def GenerateSudoku():
     end_time   = time.time() 
     time_taken = end_time - start_time
     S = SAVE( SIZE, M.grid )
-    S.SaveSudoku( time_taken, 15 )
+    S.SaveSudokuWithHiddenNumbers( 15 )
     D = DM( SIZE, M.grid )
     D.DisplayGrid()
     print( "\n" )

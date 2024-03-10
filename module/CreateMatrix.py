@@ -1,5 +1,5 @@
-from module.check_matrix import CheckMatrix as CKM
-from module.display_matrix import DisplayMatrix as DM
+from module.CheckMatrix import CheckMatrix as CKM
+from module.DisplayMatrix import DisplayMatrix as DM
 import random
 class CreateMatrix:
 
