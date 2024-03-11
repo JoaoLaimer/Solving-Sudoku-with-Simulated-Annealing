@@ -1,4 +1,4 @@
-# TSP
+# Trabalho Final
 <h1> Trabalho de Algoritmos e Estruturas de Dados III </h1>
 <h2> Problema do Caixeiro Viajante: Algoritmo Aproximativo </h2>
 <h3> Alunos: </h3>
