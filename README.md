@@ -9,6 +9,9 @@
 <h3> Biblioteca externa usada: Numpy </h3>
 
     ```pip install numpy
+### Arquivos dos algoritmos desenvolvidos: backtracking e simulated annealing
+Para rodar o backtracking só rodar o arquivo e na opção 2 ele solucionara um dos sudokus da pasta SUDOKUS\\sudoku_incomplete_SIZE, ele tambem gera novos sudokus na opção 1
+Para rodar o simulated anneling, o primeiro arquivo gera um sudoku e já soluciona. O segundo arquivo pega um sudoku da pasta SUDOKUS\\sudoku_incomplete_SIZE
 
-
+Para rodar o algoritmo em diferentes tamanhos, só precisa mudar o tamanho da variavel SIZE. (OBS: O tamanho precisa ser um quadrado perfeito [9,16,25,...]
 ### Mais informacoes do projeto na pasta relatorio
