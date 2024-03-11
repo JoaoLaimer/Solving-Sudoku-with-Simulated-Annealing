@@ -26,10 +26,10 @@ class SaveSudoku:
         file.close()
         #self.Save_Sudoku_With_Hidden_Numbers( hidden_numbers )
 
-    def SaveSudokuComplete( self, percentage = 0 ):
+    def SaveSudokuComplete( self, percentage = 0, timetaken = 0 ):
         saved_sudoku_numbers = self.CountSavedSudokus()
         file = open( f"sudokus\\sudoku_complete_{str(self.SIZE)}.txt", "a" ) 
-        file.write( f"Sudoku: {saved_sudoku_numbers} | Percentage: {percentage}\n" )
+        file.write( f"Sudoku: {saved_sudoku_numbers} | Percentage: {percentage} | Time: {timetaken}\n")
         for row in range( self.SIZE ):
             for column in range( self.SIZE ):
                 file.write( f"{ str( self.grid[ row ][ column ] ).rjust( 3 ) }" )

@@ -8,11 +8,6 @@ sys.path.append(current_dir)
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-"""
-from module.CreateMatrix   import CreateMatrix     as CM
-from module.DisplayMatrix  import DisplayMatrix    as DM
-from module.CheckMatrix    import CheckMatrix      as CKM
-"""
 from save.SaveSudoku       import SaveSudoku       as SAVE
 from random import sample
 class Sudoku:
@@ -31,20 +26,20 @@ class Sudoku:
 
         rBase = range(self.box_size)
 
-        for g in self.shuffle(rBase):
-            for r in self.shuffle(rBase):
+        for g in self.Shuffle(rBase):
+            for r in self.Shuffle(rBase):
                 rows.append(g * self.box_size + r)
 
-        for g in self.shuffle(rBase):
-            for c in self.shuffle(rBase):
+        for g in self.Shuffle(rBase):
+            for c in self.Shuffle(rBase):
                 cols.append(g * self.box_size + c)
 
-        nums  = self.shuffle(range(1,self.SIZE+1))
+        nums  = self.Shuffle(range(1,self.SIZE+1))
 
         for r in rows:
             row = []
             for c in cols:
-                number = nums[self.pattern(r, c)]
+                number = nums[self.Pattern(r, c)]
                 row.append(number)
             self.grid.append(row)
         
@@ -53,7 +48,6 @@ class Sudoku:
         self.InsertZeros()
 
         self.DisplayGrid()
-
         
 
         end_time = time.time() 
@@ -61,8 +55,8 @@ class Sudoku:
 
         print( f"Time taken to generate the sudoku: {time_taken:.5f} seconds" )
 
-    def shuffle(self,s): return sample(s,len(s)) 
-    def pattern(self,row,col): 
+    def Shuffle(self,s): return sample(s,len(s)) 
+    def Pattern(self,row,col): 
         return (self.box_size*(row%self.box_size)+row//self.box_size+col)%self.SIZE
 
     def CheckSudoku(self):
@@ -133,7 +127,7 @@ def SolveSudoku():
     pass
 
 if __name__ == "__main__":
-    PERCENTAGE = 100
+    PERCENTAGE = 101
     
     while True:
         print( "1. Generate a new Sudoku\n2. Exit" )

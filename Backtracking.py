@@ -1,25 +1,16 @@
-from module.CreateMatrix import CreateMatrix as CM
 from module.DisplayMatrix import DisplayMatrix as DM
-from module.CheckMatrix import CheckMatrix as CKM
 from save.SaveSudoku import SaveSudoku as SAVE
 import time
-import random
 import sys
 sys.setrecursionlimit(1500)
-SIZE = 25
 
-def Randomsudoku():
-    file  = open(f"sudokus\\sudoku_incomplete_{str(SIZE)}.txt", "r" )
-    count = 0
-    for line in file:
-        if line.startswith( "Sudoku" ):
-            count += 1
-    random_sudoku_id = random.randint( 0, count - 1 )
-    file.close()
-    return random_sudoku_id
+#PARAMETROS
+
+SIZE = 16
+SIZE_SQUARE = int(SIZE ** 0.5)
 
 def GetSudoku():
-    sudoku_id = Randomsudoku()
+    sudoku_id = 5
     file      = open( f"sudokus\\sudoku_incomplete_{str(SIZE)}.txt", "r" )
     sudoku    = []
     for line in file:
@@ -33,48 +24,79 @@ def GetSudoku():
     file.close()
     return sudoku
 
-def GenerateSudoku():
-    start_time = time.time() 
-    M = CM( SIZE )
-    M.InitializeGrid()
-    M.FillGrid()
-    end_time   = time.time() 
-    time_taken = end_time - start_time
-    S = SAVE( SIZE, M.grid )
-    S.SaveSudokuWithHiddenNumbers( 15 )
-    D = DM( SIZE, M.grid )
-    D.DisplayGrid()
-    print( "\n" )
+def CheckSudoku(sudoku):
+        numberSet = set( range( 1, SIZE + 1 ) )
+        for i in range( 0, SIZE ):
+            rowSet = set( sudoku[ i ] )
+            if rowSet != numberSet:
+                return False
+            
+            columnSet = set( sudoku[ j ][ i ] for j in range( 0, SIZE ) )
+            if columnSet != numberSet:
+                return False
+        
+        for i in range(0, SIZE_SQUARE):
+            for j in range(0, SIZE_SQUARE):
+                boxSet = set()
+                for k in range(0, SIZE_SQUARE):
+                    for l in range(0, SIZE_SQUARE):
+                        boxSet.add(sudoku[i* SIZE_SQUARE+k][j* SIZE_SQUARE+l])
+                if boxSet != numberSet:
+                    return False
 
-def SolveSudoku():
+        return True
+
+def CheckColumn (  num, column, grid ):
+        for row in range( SIZE ):
+            if grid[ row ][ column ] == num:
+                return False
+        return True
     
-    sudoku = GetSudoku()
-    D = DM( SIZE, sudoku )
-    D.DisplayGrid()
-    print( "\n" )
-    M = CM( SIZE )
-    start_time = time.time()
-    solved = M.Solve( sudoku )
-    end_time = time.time()
-    time_taken = end_time - start_time
-    print( f"Time taken to solve the sudoku: {time_taken:.5f} seconds" )
-    D = DM( SIZE, solved )
-    D.DisplayGrid()
-    checker = CKM( SIZE, solved )
-    print( f"Is the solution valid? {checker.IsValidSolution()}" )
+def CheckRow (  num, row, grid ):
+    for column in range( SIZE ):
+        if grid[ row ][ column ] == num:
+            return False
+    return True
 
+def CheckSquare (  num, column, row, grid ):
+    column_check = column - column % SIZE_SQUARE
+    row_check = row - row % SIZE_SQUARE
+    for i in range( 0, SIZE_SQUARE ):
+        for j in range( 0, SIZE_SQUARE ):
+            if grid[ i + row_check ][ j + column_check ] == num:
+                return False
+    return True
+
+def CheckGrid ( num, column, row, grid ):
+    return CheckColumn( num, column, grid ) and CheckRow( num, row, grid ) and CheckSquare( num, column, row, grid )
+
+def Backtracking( grid):
+    numbers = list( range( 1, SIZE + 1 ) )
+    for row in range( SIZE ):
+        for column in range( SIZE ):
+            if grid[ row ][ column ] == 0:
+                #random.shuffle( numbers )
+                for number in numbers:
+                    if CheckGrid( number, column, row, grid ):
+                        grid[ row ][ column ] = number
+                        if Backtracking( grid):
+                            return True
+                        if CheckSudoku(grid): 
+                            return True
+                        grid[ row ][ column ] = 0
+                return False
+    return True
 
 if __name__ == "__main__":
-
-    while True:
-        print( "1. Generate a new Sudoku\n2. Solve a Sudoku\n3. Exit" )
-        option = int( input( "Enter your choice: " ) )
-        if option == 1:
-            GenerateSudoku()
-        elif option == 2:
-            SolveSudoku()
-        elif option == 3:
-            print( "Exiting..." )
-            break
-        else:
-            print( "Invalid option. Please choose again." )
+    
+    sudoku = GetSudoku()
+    start_time = time.time()
+    Backtracking(sudoku)
+    print(CheckSudoku(sudoku))
+    end_time = time.time()
+    time_taken = end_time - start_time
+    print(f"Time taken: {time_taken}")
+    S = SAVE(SIZE, sudoku)
+    S.SaveSudokuComplete( 0, time_taken)
+    DISPLAY = DM(SIZE, sudoku)
+    DISPLAY.DisplayGrid()
