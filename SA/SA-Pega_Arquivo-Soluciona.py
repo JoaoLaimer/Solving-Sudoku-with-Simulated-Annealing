@@ -16,7 +16,7 @@ from save.SaveSudoku       import SaveSudoku       as SAVE
 import random
 import time
 
-SIZE        = 25
+SIZE        = 16
 SIZE_SQUARE = int(SIZE ** 0.5)
 SQUARE_SIZE = int(SIZE / SIZE_SQUARE)
 """
@@ -57,7 +57,7 @@ def SelectRandomSudoku():
     return random_sudoku_id
 
 def GetSudoku():
-    sudoku_id = SelectRandomSudoku()
+    sudoku_id = 7 #SelectRandomSudoku()
     file = open(f"sudokus\\sudoku_incomplete_{str(SIZE)}.txt", "r")
     sudoku = []
     for line in file:
@@ -199,6 +199,28 @@ def ChooseNumberOfItterations(initial_sudoku):
                 numberOfItterations += 1
     #print(f"Number of itterations: {numberOfItterations}")
     return numberOfItterations
+
+def CheckSudoku(sudoku):
+        numberSet = set( range( 1, SIZE + 1 ) )
+        for i in range( 0, SIZE ):
+            rowSet = set( sudoku[ i ] )
+            if rowSet != numberSet:
+                return False
+            
+            columnSet = set( sudoku[ j ][ i ] for j in range( 0, SIZE ) )
+            if columnSet != numberSet:
+                return False
+        
+        for i in range(0,SIZE_SQUARE):
+            for j in range(0,SIZE_SQUARE):
+                boxSet = set()
+                for k in range(0,SIZE_SQUARE):
+                    for l in range(0,SIZE_SQUARE):
+                        boxSet.add(sudoku[i*SIZE_SQUARE+k][j*SIZE_SQUARE+l])
+                if boxSet != numberSet:
+                    return False
+
+        return True
         
 def SimulatedAnnealing():
     initial_sudoku, initial_sudoku_id  = GetSudoku()
@@ -244,15 +266,17 @@ def SimulatedAnnealing():
                 TEMPERATURE = INITIAL_TEMPERATURE
             STEP += 1
             
+    print(CheckSudoku(current_sudoku))
     return current_sudoku
 
 if __name__ == "__main__":
-    start_time = time.time()
-    solved_sudoku = SimulatedAnnealing()
-    end_time = time.time()
-    time_taken = end_time - start_time
-    print(f"Time taken: {time_taken}")
-    S = SAVE(SIZE, solved_sudoku)
-    S.SaveSudokuComplete( )
-    DISPLAY = DM(SIZE, solved_sudoku)
-    DISPLAY.DisplayGrid()
+    for _ in range(0,10):
+        start_time = time.time()
+        solved_sudoku = SimulatedAnnealing()
+        end_time = time.time()
+        time_taken = end_time - start_time
+        print(f"Time taken: {time_taken}")
+        S = SAVE(SIZE, solved_sudoku)
+        S.SaveSudokuComplete( 0, time_taken)
+        DISPLAY = DM(SIZE, solved_sudoku)
+        DISPLAY.DisplayGrid()
