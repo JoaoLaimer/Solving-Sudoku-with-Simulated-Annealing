@@ -6,8 +6,8 @@ import time
 import random
 import sys
 sys.setrecursionlimit(1500)
-SIZE = 16
-
+SIZE = 9
+SIZE_SQUARE = int( SIZE ** 0.5 )
 def CountSudokus():
     file  = open(f"sudokus\\sudoku_incomplete_{str(SIZE)}.txt", "r" )
     count = 0
@@ -54,6 +54,29 @@ def GenerateSudoku():
     D.DisplayGrid()
     print( "\n" )
 
+def CheckSudoku(sudoku):
+        numberSet = set( range( 1, SIZE + 1 ) )
+        for i in range( 0, SIZE ):
+            rowSet = set( sudoku[ i ] )
+            if rowSet != numberSet:
+                return False
+            
+            columnSet = set( sudoku[ j ][ i ] for j in range( 0, SIZE ) )
+            if columnSet != numberSet:
+                return False
+        
+        for i in range(0,SIZE_SQUARE):
+            for j in range(0,SIZE_SQUARE):
+                boxSet = set()
+                for k in range(0,SIZE_SQUARE):
+                    for l in range(0,SIZE_SQUARE):
+                        boxSet.add(sudoku[i*SIZE_SQUARE+k][j*SIZE_SQUARE+l])
+                if boxSet != numberSet:
+                    return False
+
+        return True
+
+
 def SolveSudoku(id):
     
     sudoku = GetSudoku(id)
@@ -62,6 +85,8 @@ def SolveSudoku(id):
 
     start_time = time.time()
     solved = M.Solve( sudoku )
+    while not CheckSudoku(solved):
+        solved = M.Solve( sudoku )
     end_time = time.time()
 
     time_taken = end_time - start_time
@@ -69,9 +94,10 @@ def SolveSudoku(id):
 
     D = DM( SIZE, solved )
     D.DisplayGrid()
-    checker = CKM( SIZE, solved )
-    print( f"Sudoku ID: {id} | Is the solution valid? {checker.IsValidSolution()} | Time taken to solve the sudoku: {time_taken:.10f} seconds" )
+    
+    print( f"Sudoku ID: {id} | Time taken to solve the sudoku: {time_taken:.10f} seconds" )
     print("------------------------------------------------------------------------------------------------")
+
 
 
 if __name__ == "__main__":
