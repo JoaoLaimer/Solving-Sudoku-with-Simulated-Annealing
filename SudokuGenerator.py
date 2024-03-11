@@ -10,6 +10,13 @@ sys.path.append(parent_dir)
 
 from save.SaveSudoku       import SaveSudoku       as SAVE
 from random import sample
+
+# PARAMETROS PARA EXECUTAR
+
+SIZE = 9            # TAMANHO DO SUDOKU
+
+PERCENTAGE = 100   # PORCENTAGEM DE NUMEROS NO SUDOKU
+
 class Sudoku:
 
     def __init__ ( self, SIZE, PERCENTAGE = 50 ):
@@ -85,7 +92,7 @@ class Sudoku:
         for i in range( 0, self.SIZE ):
             for j in range( 0, self.SIZE ):
                 number_dice_roll = random.randint( 1, 100 )
-                if number_dice_roll >= self.PERCENTAGE:
+                if number_dice_roll > self.PERCENTAGE:
                     self.grid[ i ][ j ] = 0
         
         return True
@@ -123,22 +130,7 @@ class Sudoku:
             print( "-", end="" )
         print( "\n", end="" )
         """
-def SolveSudoku():
-    pass
-
 if __name__ == "__main__":
-    PERCENTAGE = 101
-    
-    while True:
-        print( "1. Generate a new Sudoku\n2. Exit" )
-        option = int( input( "Enter your choice: " ) )
-        if option == 1:
-            SIZE = int( input( "Enter the size N of the sudoku (NxN): " ) )
-            sudoku = Sudoku( SIZE, PERCENTAGE )
-            S = SAVE( SIZE, sudoku.grid )
-            S.SaveSudokuIncomplete( PERCENTAGE )
-        elif option == 2:
-            print( "Exiting..." )
-            break
-        else:
-            print( "Invalid option. Please choose again." )            
+        sudoku = Sudoku( SIZE, PERCENTAGE )
+        S = SAVE( SIZE, sudoku.grid )
+        S.SaveSudokuIncomplete( PERCENTAGE )
