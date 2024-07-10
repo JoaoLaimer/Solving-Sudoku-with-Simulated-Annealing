@@ -1,10 +1,4 @@
-# Trabalho Final
-<h1> Trabalho de Algoritmos e Estruturas de Dados III </h1>
-<h3> Alunos: </h3>
-<ul>
-  <li> João Vitor Laimer - 21200682 </li>
-  <li> Vinicius Hallmann - 21201044</li>
-</ul>
+# Resolvendo Sudoku usnaod Simulated Annealing
 
 <h3> Biblioteca externa usada: Numpy </h3>
 
